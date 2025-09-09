@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Visualizador Interactivo de CSV — SPA accesible</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body data-theme="light">
+  <a href="#main" class="skip-link">Saltar al contenido</a>
+  <div class="container" id="main">
+    <header>
+      <div>
+        <h1>Visualizador Interactivo de CSV — SPA accesible</h1>
+        <div class="muted">Pega o importa tu CSV, filtra la tabla y crea una gráfica configurada.</div>
+      </div>
+      <div class="controls" aria-hidden="false">
+        <div class="small">Tema</div>
+        <button id="themeToggle" aria-pressed="false" aria-label="Alternar modo oscuro">Modo oscuro</button>
+        <button id="sampleCSV">Cargar ejemplo</button>
+        <button id="clearAll">Limpiar</button>
+      </div>
+    </header>
+
+    <section class="grid">
+      <!-- Columna izquierda -->
+      <div class="card" role="region" aria-labelledby="inputTitle">
+        <h2 id="inputTitle">Área CSV</h2>
+        <p class="muted">Pega aquí tu CSV (encabezado en primera fila). Soporta comas, punto y coma o tabulaciones.</p>
+
+        <label for="csvInput">Pegar CSV</label>
+        <textarea id="csvInput" aria-label="Área para pegar CSV" placeholder="columna1,columna2,valor&#10;A,foo,10&#10;B,bar,20"></textarea>
+
+        <div class="row" role="group" aria-label="Controles de CSV">
+          <input id="fileInput" type="file" accept=".csv,text/csv" aria-label="Importar archivo CSV" />
+          <button id="parseBtn">Procesar CSV</button>
+          <button id="validateBtn">Validar solo</button>
+        </div>
+
+        <div id="warnings" class="muted" aria-live="assertive"></div>
+
+        <hr />
+
+        <div id="tableActions" class="row">
+          <div class="muted">Opciones de tabla:</div>
+          <label class="small">Buscar <input id="globalFilter" class="small" placeholder="Buscar en todas las columnas" /></label>
+          <label class="small">Filas por página 
+            <select id="pageSize">
+              <option>10</option>
+              <option selected>25</option>
+              <option>50</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <!-- Columna derecha -->
+      <div class="right-col">
+        <div class="card table-wrap" role="region" aria-labelledby="tableTitle">
+          <h2 id="tableTitle">Tabla de datos</h2>
+          <div id="tableContainer" tabindex="0">
+            <div class="muted">No hay datos aún. Pega o importa un CSV y presiona "Procesar CSV".</div>
+          </div>
+        </div>
+
+        <div class="card" role="region" aria-labelledby="chartTitle">
+          <h2 id="chartTitle">Gráfica</h2>
+
+          <div class="row">
+            <label>Columna X (etiquetas)
+              <select id="colX"></select>
+            </label>
+
+            <label>Columna Y (valores)
+              <select id="colY"></select>
+            </label>
+
+            <label>Tipo
+              <select id="chartType">
+                <option value="vertical-bar">Barras verticales</option>
+                <option value="horizontal-bar">Barras horizontales</option>
+                <option value="line">Línea</option>
+              </select>
+            </label>
+
+            <label class="small"><input type="checkbox" id="showValues" /> Mostrar valores</label>
+            <button id="renderChart">Actualizar gráfica</button>
+            <button id="exportPNG">Exportar PNG</button>
+          </div>
+
+          <div id="chartContainer">
+            <canvas id="chartCanvas"></canvas>
+          </div>
+          <div id="chartInfo" class="muted" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="./script.js"></script>
+</body>
+</html>
