@@ -12,7 +12,7 @@
   <div class="container" id="main">
     <header>
       <div>
-        <h1>Visualizador Interactivo de CSV — SPA accesible</h1>
+        <h1>Visualizador Interactivo de CSV</h1>
         <div class="muted">Pega o importa tu CSV, filtra la tabla y crea una gráfica configurada.</div>
       </div>
       <div class="controls" aria-hidden="false">
@@ -23,8 +23,28 @@
       </div>
     </header>
 
+    <div id="statsContainer" style="margin-top:16px;">
+      <h3>Ranking dinámico</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px;">
+      <label>Agrupar por:
+    <select id="rankingGroup"></select>
+      </label>
+    <label>Sumar valores de:
+      <select id="rankingValue"></select>
+    </label>
+    <label>Mostrar top:
+      <input id="rankingTop" type="number" min="1" value="5" style="width:64px;" />
+    </label>
+    <label>
+      <input id="rankingOrder" type="checkbox" /> Ascendente
+    </label>
+  </div>
+  <div id="ranking"><div class="muted">No hay datos cargados.</div></div>
+</div>
+
+
     <section class="grid">
-      <!-- Columna izquierda -->
+  
       <div class="card" role="region" aria-labelledby="inputTitle">
         <h2 id="inputTitle">Área CSV</h2>
         <p class="muted">Pega aquí tu CSV (encabezado en primera fila). Soporta comas, punto y coma o tabulaciones.</p>
@@ -45,17 +65,10 @@
         <div id="tableActions" class="row">
           <div class="muted">Opciones de tabla:</div>
           <label class="small">Buscar <input id="globalFilter" class="small" placeholder="Buscar en todas las columnas" /></label>
-          <label class="small">Filas por página 
-            <select id="pageSize">
-              <option>10</option>
-              <option selected>25</option>
-              <option>50</option>
-            </select>
-          </label>
         </div>
       </div>
 
-      <!-- Columna derecha -->
+   
       <div class="right-col">
         <div class="card table-wrap" role="region" aria-labelledby="tableTitle">
           <h2 id="tableTitle">Tabla de datos</h2>
