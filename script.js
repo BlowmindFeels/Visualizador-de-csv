@@ -1,8 +1,4 @@
-// script.js
 
-// -------------------------
-// Utilidades CSV
-// -------------------------
 function parseCSV(text) {
   const delimiter = text.includes(';') ? ';' : text.includes('\t') ? '\t' : ',';
   return text
@@ -19,15 +15,11 @@ function validateCSV(matrix) {
   return null;
 }
 
-// -------------------------
-// Estado global
-// -------------------------
+
 let tableData = [];
 let chart = null;
 
-// -------------------------
-// DOM helpers
-// -------------------------
+
 const qs = sel => document.querySelector(sel);
 const qsa = sel => document.querySelectorAll(sel);
 
@@ -37,9 +29,7 @@ function showMessage(msg, type = "error") {
   warnings.className = type === "success" ? "success" : "error";
 }
 
-// -------------------------
-// Tema claro/oscuro
-// -------------------------
+
 const themeToggle = qs("#themeToggle");
 themeToggle.addEventListener("click", () => {
   const current = document.body.getAttribute("data-theme");
@@ -55,9 +45,7 @@ themeToggle.addEventListener("click", () => {
   themeToggle.textContent = saved === "dark" ? "Modo claro" : "Modo oscuro";
 })();
 
-// -------------------------
-// CSV de ejemplo y limpiar
-// -------------------------
+
 qs("#sampleCSV").addEventListener("click", () => {
   qs("#csvInput").value = "Columna,Valor\nA,10\nB,20\nC,30";
 });
@@ -74,9 +62,7 @@ qs("#clearAll").addEventListener("click", () => {
   showMessage("", "success");
 });
 
-// -------------------------
-// Importar archivo
-// -------------------------
+
 qs("#fileInput").addEventListener("change", e => {
   const file = e.target.files[0];
   if (!file) return;
@@ -85,9 +71,7 @@ qs("#fileInput").addEventListener("change", e => {
   reader.readAsText(file);
 });
 
-// -------------------------
-// Validar y procesar CSV
-// -------------------------
+
 qs("#validateBtn").addEventListener("click", () => {
   const matrix = parseCSV(qs("#csvInput").value);
   const err = validateCSV(matrix);
@@ -142,9 +126,7 @@ function fillColumnSelectors() {
   colY.innerHTML = headers.map((h, i) => `<option value="${i}">${h}</option>`).join("");
 }
 
-// -------------------------
-// Gráfica
-// -------------------------
+
 qs("#renderChart").addEventListener("click", () => {
   if (!tableData.length) return;
   const [headers, ...rows] = tableData;
@@ -196,3 +178,87 @@ qs("#exportPNG").addEventListener("click", () => {
   a.download = "grafica.png";
   a.click();
 });
+
+let currentPage = 1;
+let rowsPerPage = 10; // valor por defecto
+
+function renderTable() {
+  const container = qs("#tableContainer");
+  if (!tableData.length) {
+    container.innerHTML = "<div class='muted'>No hay datos cargados.</div>";
+    return;
+  }
+
+  const [headers, ...rows] = tableData;
+
+
+  const rawQuery = (qs("#globalFilter") && qs("#globalFilter").value) || "";
+  const q = rawQuery.trim().toLowerCase();
+  let filtered = q
+    ? rows.filter(r => r.some(cell => String(cell).toLowerCase().includes(q)))
+    : rows.slice();
+
+
+  const selRows = qs("#rowsPerPage");
+  if (selRows) {
+    const val = parseInt(selRows.value, 10);
+    rowsPerPage = Number.isInteger(val) && val > 0 ? val : rowsPerPage;
+  }
+
+  const totalRows = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+
+  const start = (currentPage - 1) * rowsPerPage;
+  const pageRows = filtered.slice(start, start + rowsPerPage);
+
+
+  let html = "<table><thead><tr>";
+  headers.forEach(h => (html += `<th>${h}</th>`));
+  html += "</tr></thead><tbody>";
+
+  if (!pageRows.length) {
+    html += `<tr><td colspan="${headers.length}" style="text-align:center;">No hay filas que coincidan con la búsqueda.</td></tr>`;
+  } else {
+    pageRows.forEach(r => {
+      html += "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>";
+    });
+  }
+
+  html += "</tbody></table>";
+
+  // --- Controles de paginación ---
+  html += `<div class="table-controls" style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+    <button id="prevPage" ${currentPage === 1 ? "disabled" : ""}>Anterior</button>
+    <span id="pageInfo">Página ${currentPage} de ${totalPages} — ${totalRows} filas</span>
+    <button id="nextPage" ${currentPage === totalPages ? "disabled" : ""}>Siguiente</button>
+  </div>`;
+
+  container.innerHTML = html;
+
+  // --- Listeners prev/next ---
+  const prev = qs("#prevPage");
+  const next = qs("#nextPage");
+  if (prev) prev.addEventListener("click", () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderTable();
+    }
+  });
+  if (next) next.addEventListener("click", () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderTable();
+    }
+  });
+}
+
+const globalFilter = qs("#globalFilter");
+if (globalFilter) {
+  globalFilter.addEventListener("input", () => {
+    currentPage = 1; // volver a la página 1 al filtrar
+    renderTable();
+  });
+}
+
